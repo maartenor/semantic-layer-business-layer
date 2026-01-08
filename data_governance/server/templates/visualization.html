@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}Relationship Model - Mock Data Governance Application{% endblock %}
+
+{% block extra_css %}
+<style>
+    #network {
+        width: 100%;
+        height: 700px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #fafafa;
+    }
+
+    .controls {
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .legend {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Data Governance Relationship Model</h2>
+    <p>Interactive visualization showing data objects and their attributes across Business, Logical, and Technical layers.</p>
+    <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: 0.5rem;">
+        <strong>Hierarchy:</strong> Top layer = Business, Middle layer = Logical, Bottom layer = Technical.
+        <strong>Boxes</strong> = Data Objects/Tables, <strong>Ellipses</strong> = Attributes/Columns.
+        Dashed lines show object-attribute relationships. Nodes can be dragged horizontally within their layer.
+    </p>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: #2196F3;"></div>
+            <span>Business Object</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #64B5F6;"></div>
+            <span>Business Attribute</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #9f5cab;"></div>
+            <span>Logical Object</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #b893be;"></div>
+            <span>Logical Attribute</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #4CAF50;"></div>
+            <span>Technical Table</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #81C784;"></div>
+            <span>Technical Column</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="network.fit()">Fit to Screen</button>
+        <button class="btn btn-secondary" onclick="resetZoom()">Reset Zoom</button>
+        <button class="btn btn-secondary" id="physicsToggle" onclick="togglePhysics()">Stop Physics</button>
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="showAttributes" checked onchange="toggleAttributes()">
+            <span>Show Attributes</span>
+        </label>
+    </div>
+
+    <div id="network"></div>
+</div>
+
+<div class="card">
+    <h2>Model Statistics</h2>
+    <div class="stats">
+        <div class="stat-card">
+            <h3>Nodes</h3>
+            <div class="number">{{ nodes|length }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Relationships</h3>
+            <div class="number">{{ edges|length }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script>
+    // Nodes and edges data from Flask
+    const nodesData = {{ nodes|tojson|safe }};
+    const edgesData = {{ edges|tojson|safe }};
+
+    // Create a network
+    const container = document.getElementById('network');
+
+    // Define color mapping for different groups
+    const colorMap = {
+        'domain': '#FF9800',
+        'Business Data Object': '#2196F3',
+        'Business Attribute': '#64B5F6',
+        'Logical Data Object': '#9C27B0',
+        'Logical Attribute': '#BA68C8',
+        'Technical Table': '#4CAF50',
+        'Technical Column': '#81C784'
+    };
+
+    // Define level position ranges (min, max)
+    const levelRanges = {
+        0: { min: -400, max: -200, center: -300 },  // Business layer (top)
+        1: { min: -100, max: 100, center: 0 },      // Logical layer (middle) - wider range
+        2: { min: 200, max: 400, center: 300 },     // Technical layer (bottom)
+        3: { min: 500, max: 700, center: 600 }      // Domain or other
+    };
+
+    // Helper function to get random y position within layer range
+    function getYInRange(level) {
+        const range = levelRanges[level] || { min: 0, max: 100, center: 50 };
+        return range.center + (Math.random() - 0.5) * (range.max - range.min) * 0.8;
+    }
+
+    // Process nodes to add colors and sizing based on hierarchy
+    const nodes = new vis.DataSet(nodesData.map((node, index) => ({
+        ...node,
+        color: {
+            background: colorMap[node.group] || '#95a5a6',
+            border: '#2c3e50',
+            highlight: {
+                background: colorMap[node.group] || '#95a5a6',
+                border: '#e74c3c'
+            }
+        },
+        font: {
+            color: '#2c3e50',
+            size: node.is_parent ? 16 : 12
+        },
+        shape: node.is_parent ? 'box' : 'ellipse',
+        size: node.is_parent ? 30 : 15,
+        level: node.level,
+        y: getYInRange(node.level),
+        fixed: {
+            x: false,
+            y: false  // Allow vertical movement within constraints
+        }
+    })));
+
+    const edges = new vis.DataSet(edgesData.map(edge => ({
+        ...edge,
+        color: edge.color || {
+            color: '#7f8c8d',
+            highlight: '#e74c3c'
+        },
+        font: {
+            size: 10,
+            color: '#34495e',
+            background: 'white'
+        },
+        dashes: edge.dashes || false,
+        smooth: {
+            type: 'cubicBezier',
+            roundness: 0.5
+        }
+    })));
+
+    const data = { nodes, edges };
+
+    const options = {
+        layout: {
+            randomSeed: undefined,  // Allow random positioning each time
+            improvedLayout: true
+        },
+        physics: {
+            enabled: true,
+            solver: 'forceAtlas2Based',
+            forceAtlas2Based: {
+                gravitationalConstant: -50,
+                centralGravity: 0.01,
+                springLength: 200,
+                springConstant: 0.05,
+                damping: 0.4,
+                avoidOverlap: 1
+            },
+            stabilization: {
+                enabled: true,
+                iterations: 200,
+                updateInterval: 25
+            }
+        },
+        interaction: {
+            hover: true,
+            tooltipDelay: 100,
+            navigationButtons: true,
+            keyboard: true,
+            dragNodes: true,
+            dragView: true,
+            zoomView: true
+        },
+        nodes: {
+            borderWidth: 2,
+            shadow: true
+        },
+        edges: {
+            width: 2,
+            shadow: true,
+            smooth: {
+                enabled: true,
+                type: 'dynamic',
+                roundness: 0.5
+            }
+        }
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    // Stop physics after stabilization for better interaction
+    network.on('stabilizationIterationsDone', function() {
+        network.setOptions({ physics: false });
+        updatePhysicsButton();
+    });
+
+    function resetZoom() {
+        network.moveTo({
+            scale: 1.0,
+            position: {x: 0, y: 0}
+        });
+    }
+
+    function togglePhysics() {
+        const currentPhysics = network.physics.options.enabled;
+        network.setOptions({ physics: !currentPhysics });
+        updatePhysicsButton();
+    }
+
+    function updatePhysicsButton() {
+        const button = document.getElementById('physicsToggle');
+        const isPhysicsEnabled = network.physics.options.enabled;
+        button.textContent = isPhysicsEnabled ? 'Stop Physics' : 'Start Physics';
+        button.className = isPhysicsEnabled ? 'btn btn-secondary' : 'btn';
+    }
+
+    // Add click event to show details
+    network.on("click", function(params) {
+        if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const node = nodes.get(nodeId);
+            console.log('Node clicked:', node);
+        }
+        if (params.edges.length > 0) {
+            const edgeId = params.edges[0];
+            const edge = edges.get(edgeId);
+            console.log('Edge clicked:', edge);
+        }
+    });
+
+    // Function to toggle attributes visibility
+    function toggleAttributes() {
+        const showAttributes = document.getElementById('showAttributes').checked;
+        const allNodes = nodesData;
+
+        // Get all nodes IDs that are attributes (not parent objects)
+        const attributeNodeIds = allNodes.filter(node => !node.is_parent).map(node => node.id);
+
+        // Get all edges that connect to attributes (has attribute relationships)
+        const attributeEdgeIds = edgesData
+            .filter(edge => edge.label === 'has attribute' ||
+                           attributeNodeIds.includes(edge.from) ||
+                           attributeNodeIds.includes(edge.to))
+            .map((edge, index) => index);
+
+        if (showAttributes) {
+            // Show attributes: add them back to the network
+            allNodes.filter(node => !node.is_parent).forEach(node => {
+                const processedNode = {
+                    ...node,
+                    color: {
+                        background: colorMap[node.group] || '#95a5a6',
+                        border: '#2c3e50',
+                        highlight: {
+                            background: colorMap[node.group] || '#95a5a6',
+                            border: '#e74c3c'
+                        }
+                    },
+                    font: {
+                        color: '#2c3e50',
+                        size: 12
+                    },
+                    shape: 'ellipse',
+                    size: 15,
+                    level: node.level,
+                    y: levelPositions[node.level] || 0,
+                    fixed: {
+                        x: false,
+                        y: true
+                    }
+                };
+                nodes.update(processedNode);
+            });
+
+            // Show attribute edges
+            edgesData.forEach((edge, index) => {
+                if (attributeEdgeIds.includes(index)) {
+                    const processedEdge = {
+                        ...edge,
+                        color: edge.color || {
+                            color: '#7f8c8d',
+                            highlight: '#e74c3c'
+                        },
+                        font: {
+                            size: 10,
+                            color: '#34495e',
+                            background: 'white'
+                        },
+                        dashes: edge.dashes || false,
+                        smooth: {
+                            type: 'cubicBezier',
+                            roundness: 0.5
+                        }
+                    };
+                    edges.update(processedEdge);
+                }
+            });
+        } else {
+            // Hide attributes: remove them from the network
+            nodes.remove(attributeNodeIds);
+
+            // Hide attribute edges
+            edges.remove(attributeEdgeIds);
+        }
+
+        // Refit the network
+        setTimeout(() => {
+            network.fit();
+        }, 100);
+    }
+
+    // Fit network to screen on load
+    setTimeout(() => {
+        network.fit();
+    }, 100);
+</script>
+{% endblock %}

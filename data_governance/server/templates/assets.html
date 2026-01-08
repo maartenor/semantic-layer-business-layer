@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block title %}Assets - Mock Data Governance Application{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #e1e8ed;
+    }
+
+    .tab {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #7f8c8d;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .tab:hover {
+        color: #2c3e50;
+    }
+
+    .tab.active {
+        color: #3498db;
+        border-bottom-color: #3498db;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        margin-top: 1rem;
+    }
+
+    .search-box {
+        width: 100%;
+        max-width: 400px;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .asset-id {
+        font-family: 'Courier New', monospace;
+        color: #e74c3c;
+        font-size: 0.9rem;
+    }
+
+    td.description {
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .layer-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-right: 0.5rem;
+    }
+
+    .object-group {
+        margin-bottom: 2rem;
+        border: 1px solid #e1e8ed;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .object-header {
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid #e1e8ed;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .object-header:hover {
+        background: #ecf0f1;
+    }
+
+    .object-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .object-meta {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        margin-top: 0.25rem;
+    }
+
+    .object-body {
+        padding: 0;
+    }
+
+    .object-body.collapsed {
+        display: none;
+    }
+
+    .attribute-table {
+        width: 100%;
+        margin: 0;
+    }
+
+    .attribute-table tr:first-child td {
+        border-top: none;
+    }
+
+    .attribute-row {
+        background: white;
+    }
+
+    .attribute-row:hover {
+        background: #f8f9fa;
+    }
+
+    .indent {
+        padding-left: 3rem;
+        position: relative;
+    }
+
+    .indent::before {
+        content: "└─";
+        position: absolute;
+        left: 1.5rem;
+        color: #95a5a6;
+    }
+
+    .toggle-icon {
+        color: #3498db;
+        font-size: 1.2rem;
+        transition: transform 0.3s;
+    }
+
+    .toggle-icon.collapsed {
+        transform: rotate(-90deg);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Data Assets</h2>
+    <p>Browse all data assets across Business, Logical, and Technical layers.</p>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div class="tabs" style="margin-bottom: 0;">
+            <button class="tab active" onclick="showTab('all')">All Assets</button>
+            <button class="tab" onclick="showTab('business')">Business Layer</button>
+            <button class="tab" onclick="showTab('logical')">Logical Layer</button>
+            <button class="tab" onclick="showTab('technical')">Technical Layer</button>
+        </div>
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+            <input type="checkbox" id="showAttributes" checked onchange="toggleAttributesVisibility()">
+            <span>Show Attributes</span>
+        </label>
+    </div>
+
+    <!-- All Assets Tab -->
+    <div id="all-tab" class="tab-content active">
+        <input type="text" class="search-box" id="search-all" onkeyup="filterTable('all-table', 'search-all')" placeholder="Search assets...">
+        <div class="table-wrapper">
+            <table id="all-table">
+                <thead>
+                    <tr>
+                        <th>Asset ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Domain</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in all_assets %}
+                    <tr>
+                        <td class="asset-id">{{ asset.id }}</td>
+                        <td><strong>{{ asset.displayName }}</strong></td>
+                        <td>
+                            {% if 'Business' in asset.type.name %}
+                            <span class="badge badge-business">{{ asset.type.name }}</span>
+                            {% elif 'Logical' in asset.type.name %}
+                            <span class="badge badge-logical">{{ asset.type.name }}</span>
+                            {% elif 'Technical' in asset.type.name %}
+                            <span class="badge badge-technical">{{ asset.type.name }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ asset.domain.name }}</td>
+                        <td class="description" title="{{ asset.description }}">{{ asset.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Business Layer Tab -->
+    <div id="business-tab" class="tab-content">
+        <h3>Business Data Objects & Attributes</h3>
+        <p>Business-friendly view showing data objects and their attributes with business definitions and ownership.</p>
+
+        {% for group in business_hierarchy %}
+        <div class="object-group">
+            <div class="object-header" onclick="toggleGroup(this)">
+                <div>
+                    <div class="object-title">
+                        <span class="badge badge-business">{{ group.parent.type.name }}</span>
+                        {{ group.parent.displayName }}
+                    </div>
+                    <div class="object-meta">
+                        <span class="asset-id">{{ group.parent.id }}</span> |
+                        {{ group.attributes|length }} attribute(s) |
+                        {{ group.parent.attributes.business_owner if group.parent.attributes and group.parent.attributes.business_owner else 'No owner' }}
+                    </div>
+                    <div class="object-meta">{{ group.parent.description }}</div>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="object-body">
+                <table class="attribute-table">
+                    <thead>
+                        <tr>
+                            <th>Attribute Name</th>
+                            <th>Asset ID</th>
+                            <th>Business Definition</th>
+                            <th>Data Steward</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attr in group.attributes %}
+                        <tr class="attribute-row">
+                            <td class="indent"><strong>{{ attr.displayName }}</strong></td>
+                            <td><span class="asset-id">{{ attr.id }}</span></td>
+                            <td class="description" title="{{ attr.attributes.business_definition if attr.attributes and attr.attributes.business_definition else attr.description }}">
+                                {{ attr.attributes.business_definition if attr.attributes and attr.attributes.business_definition else attr.description }}
+                            </td>
+                            <td>{{ attr.attributes.data_steward if attr.attributes and attr.attributes.data_steward else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Logical Layer Tab -->
+    <div id="logical-tab" class="tab-content">
+        <h3>Logical Data Objects & Attributes</h3>
+        <p>Logical representation mapping business concepts to technical implementation.</p>
+
+        {% for group in logical_hierarchy %}
+        <div class="object-group">
+            <div class="object-header" onclick="toggleGroup(this)">
+                <div>
+                    <div class="object-title">
+                        <span class="badge badge-logical">{{ group.parent.type.name }}</span>
+                        {{ group.parent.displayName }}
+                    </div>
+                    <div class="object-meta">
+                        <span class="asset-id">{{ group.parent.id }}</span> |
+                        {{ group.attributes|length }} attribute(s) |
+                        Maps to: {{ group.parent.attributes.maps_to_business if group.parent.attributes and group.parent.attributes.maps_to_business else 'N/A' }}
+                    </div>
+                    <div class="object-meta">{{ group.parent.description }}</div>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="object-body">
+                <table class="attribute-table">
+                    <thead>
+                        <tr>
+                            <th>Attribute Name</th>
+                            <th>Asset ID</th>
+                            <th>Data Type</th>
+                            <th>Nullable</th>
+                            <th>Primary Key</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attr in group.attributes %}
+                        <tr class="attribute-row">
+                            <td class="indent"><strong>{{ attr.displayName }}</strong></td>
+                            <td><span class="asset-id">{{ attr.id }}</span></td>
+                            <td>{{ attr.attributes.data_type if attr.attributes and attr.attributes.data_type else '-' }}</td>
+                            <td>{{ attr.attributes.is_nullable if attr.attributes and attr.attributes.is_nullable else '-' }}</td>
+                            <td>{{ attr.attributes.is_primary_key if attr.attributes and attr.attributes.is_primary_key else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Technical Layer Tab -->
+    <div id="technical-tab" class="tab-content">
+        <h3>Technical Tables & Columns</h3>
+        <p>Physical database tables and columns representing the actual data storage.</p>
+
+        {% for group in technical_hierarchy %}
+        <div class="object-group">
+            <div class="object-header" onclick="toggleGroup(this)">
+                <div>
+                    <div class="object-title">
+                        <span class="badge badge-technical">{{ group.parent.type.name }}</span>
+                        {{ group.parent.displayName }}
+                    </div>
+                    <div class="object-meta">
+                        <span class="asset-id">{{ group.parent.id }}</span> |
+                        {{ group.attributes|length }} column(s) |
+                        {% if group.parent.attributes and group.parent.attributes.schema_name and group.parent.attributes.table_name %}
+                        {{ group.parent.attributes.schema_name }}.{{ group.parent.attributes.table_name }}
+                        {% endif %}
+                        {% if group.parent.attributes and group.parent.attributes.source_system %}
+                        | Source: {{ group.parent.attributes.source_system }}
+                        {% endif %}
+                    </div>
+                    <div class="object-meta">{{ group.parent.description }}</div>
+                </div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="object-body">
+                <table class="attribute-table">
+                    <thead>
+                        <tr>
+                            <th>Column Name</th>
+                            <th>Asset ID</th>
+                            <th>Data Type</th>
+                            <th>Max Length</th>
+                            <th>Nullable</th>
+                            <th>Primary Key</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attr in group.attributes %}
+                        <tr class="attribute-row">
+                            <td class="indent"><strong>{{ attr.displayName }}</strong></td>
+                            <td><span class="asset-id">{{ attr.id }}</span></td>
+                            <td>{{ attr.attributes.data_type if attr.attributes and attr.attributes.data_type else '-' }}</td>
+                            <td>{{ attr.attributes.max_length if attr.attributes and attr.attributes.max_length else '-' }}</td>
+                            <td>{{ attr.attributes.is_nullable if attr.attributes and attr.attributes.is_nullable else '-' }}</td>
+                            <td>{{ attr.attributes.is_primary_key if attr.attributes and attr.attributes.is_primary_key else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showTab(tabName) {
+        // Hide all tab contents
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        // Remove active class from all tabs
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        // Show selected tab content
+        document.getElementById(tabName + '-tab').classList.add('active');
+
+        // Activate clicked tab button
+        event.target.classList.add('active');
+    }
+
+    function toggleGroup(headerElement) {
+        // Find the object-body sibling
+        const body = headerElement.nextElementSibling;
+        const icon = headerElement.querySelector('.toggle-icon');
+
+        // Toggle visibility
+        body.classList.toggle('collapsed');
+        icon.classList.toggle('collapsed');
+    }
+
+    function filterTable(tableId, searchId) {
+        const input = document.getElementById(searchId);
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById(tableId);
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < cells.length; j++) {
+                const cell = cells[j];
+                if (cell.textContent.toLowerCase().indexOf(filter) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+
+            row.style.display = found ? '' : 'none';
+        }
+    }
+
+    function toggleAttributesVisibility() {
+        const showAttributes = document.getElementById('showAttributes').checked;
+
+        // For "All Assets" tab - hide rows that contain "Attribute" in the Type column
+        const allTable = document.getElementById('all-table');
+        if (allTable) {
+            const rows = allTable.getElementsByTagName('tr');
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const typeCell = row.cells[2]; // Type column is 3rd column (index 2)
+                if (typeCell && typeCell.textContent.includes('Attribute')) {
+                    row.style.display = showAttributes ? '' : 'none';
+                }
+            }
+        }
+
+        // For Business, Logical, Technical tabs - hide object bodies (attribute tables)
+        const objectBodies = document.querySelectorAll('.object-body');
+        objectBodies.forEach(body => {
+            if (showAttributes) {
+                body.classList.remove('collapsed');
+                // Update toggle icons to show expanded state
+                const header = body.previousElementSibling;
+                if (header) {
+                    const icon = header.querySelector('.toggle-icon');
+                    if (icon) {
+                        icon.classList.remove('collapsed');
+                    }
+                }
+            } else {
+                body.classList.add('collapsed');
+                // Update toggle icons to show collapsed state
+                const header = body.previousElementSibling;
+                if (header) {
+                    const icon = header.querySelector('.toggle-icon');
+                    if (icon) {
+                        icon.classList.add('collapsed');
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

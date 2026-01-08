@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Relationships - Mock Data Governance Application{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-box {
+        width: 100%;
+        max-width: 400px;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .asset-id {
+        font-family: 'Courier New', monospace;
+        color: #e74c3c;
+        font-size: 0.9rem;
+    }
+
+    .relation-type {
+        font-weight: 600;
+        color: #3498db;
+    }
+
+    .arrow {
+        color: #7f8c8d;
+        font-size: 1.2rem;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-item label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+
+    .filter-item select {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        min-width: 200px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-box {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        border-left: 4px solid #3498db;
+    }
+
+    .stat-box h4 {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-box .value {
+        color: #2c3e50;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .relationship-flow {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .flow-item {
+        padding: 0.5rem 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Data Governance Relationships</h2>
+    <p>View all relationships mapping between Business, Logical, and Technical data layers.</p>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <h4>Total Relationships</h4>
+            <div class="value">{{ relationships|length }}</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #9C27B0;">
+            <h4>"Maps To" Relations</h4>
+            <div class="value">{{ relationships|selectattr('type.name', 'equalto', 'maps to')|list|length }}</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #4CAF50;">
+            <h4>"Implements" Relations</h4>
+            <div class="value">{{ relationships|selectattr('type.name', 'equalto', 'implements')|list|length }}</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #FF9800;">
+            <h4>"Foreign Key" Relations</h4>
+            <div class="value">{{ relationships|selectattr('type.name', 'equalto', 'foreign key')|list|length }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Relationship Details</h3>
+
+    <div class="filter-group">
+        <div class="filter-item">
+            <label for="relation-type-filter">Filter by Type:</label>
+            <select id="relation-type-filter" onchange="filterRelations()">
+                <option value="">All Types</option>
+                <option value="maps to">Maps To</option>
+                <option value="implements">Implements</option>
+                <option value="foreign key">Foreign Key</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <label for="search-relations">Search:</label>
+            <input type="text" class="search-box" id="search-relations" onkeyup="filterRelations()" placeholder="Search relationships...">
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="relationships-table">
+            <thead>
+                <tr>
+                    <th>Relationship ID</th>
+                    <th>Source Asset</th>
+                    <th style="text-align: center;">Relationship</th>
+                    <th>Target Asset</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rel in relationships %}
+                <tr data-type="{{ rel.type.name }}">
+                    <td class="asset-id">{{ rel.id }}</td>
+                    <td>
+                        <div class="asset-id">{{ rel.sourceId }}</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="relation-type">{{ rel.type.name }}</span>
+                        <span class="arrow">→</span>
+                    </td>
+                    <td>
+                        <div class="asset-id">{{ rel.targetId }}</div>
+                    </td>
+                    <td>{{ rel.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Relationship Patterns</h3>
+    <p>Common relationship patterns in the data governance model:</p>
+
+    <h4 style="margin-top: 1.5rem; color: #2c3e50;">Business → Logical → Technical Flow</h4>
+    <div class="relationship-flow">
+        <div class="flow-item">
+            <strong>Business Data Object</strong>
+            <div style="font-size: 0.85rem; color: #7f8c8d;">Customer</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-item" style="background: #f3e5f5;">
+            <strong>Logical Data Object</strong>
+            <div style="font-size: 0.85rem; color: #7f8c8d;">Customer Entity</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-item" style="background: #e8f5e9;">
+            <strong>Technical Table</strong>
+            <div style="font-size: 0.85rem; color: #7f8c8d;">customers</div>
+        </div>
+    </div>
+
+    <h4 style="margin-top: 1.5rem; color: #2c3e50;">Attribute Mapping</h4>
+    <div class="relationship-flow">
+        <div class="flow-item">
+            <strong>Business Attribute</strong>
+            <div style="font-size: 0.85rem; color: #7f8c8d;">Customer ID</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-item" style="background: #f3e5f5;">
+            <strong>Logical Attribute</strong>
+            <div style="font-size: 0.85rem; color: #7f8c8d;">customer_id</div>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-item" style="background: #e8f5e9;">
+            <strong>Technical Column</strong>
+            <div style="font-size: 0.85rem; color: #7f8c8d;">customer_id</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterRelations() {
+        const typeFilter = document.getElementById('relation-type-filter').value.toLowerCase();
+        const searchInput = document.getElementById('search-relations').value.toLowerCase();
+        const table = document.getElementById('relationships-table');
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const rowType = row.getAttribute('data-type').toLowerCase();
+            const cells = row.getElementsByTagName('td');
+            let matchesSearch = false;
+
+            // Check if row matches search
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().indexOf(searchInput) > -1) {
+                    matchesSearch = true;
+                    break;
+                }
+            }
+
+            // Check if row matches type filter
+            const matchesType = !typeFilter || rowType === typeFilter;
+
+            // Show row only if it matches both filters
+            row.style.display = (matchesSearch && matchesType) ? '' : 'none';
+        }
+    }
+</script>
+{% endblock %}

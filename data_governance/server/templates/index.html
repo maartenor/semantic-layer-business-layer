@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Mock Data Governance Application{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Mock Data Governance Application</h2>
+    <p>A mock data governance application (think: Collibra) for testing and development purposes.</p>
+    <p>This server provides a complete data governance model with Business, Logical, and Technical data objects, along with a REST API.</p>
+</div>
+
+<div class="stats">
+    <div class="stat-card">
+        <h3>Total Assets</h3>
+        <div class="number">{{ assets_count }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Domains</h3>
+        <div class="number">{{ domains_count }}</div>
+    </div>
+    <div class="stat-card">
+        <h3>Relationships</h3>
+        <div class="number">{{ relationships_count }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Data Layers</h2>
+    <h3>Business Layer</h3>
+    <p>Describes data in business terms with business-friendly definitions and ownership information.</p>
+    <ul>
+        <li>Customer data objects (Customer, Customer ID, Customer Name, Country)</li>
+        <li>Machine data objects (Machine, Machine Number, Machine Type, Model)</li>
+    </ul>
+
+    <h3>Logical Layer</h3>
+    <p>Provides a 1-to-1 mapping from business logic to technical implementation, bridging the gap between business and technical views.</p>
+    <ul>
+        <li>Logical customer entity with attributes</li>
+        <li>Logical machine entity with attributes</li>
+    </ul>
+
+    <h3>Technical Layer</h3>
+    <p>Represents the physical storage in PostgreSQL database with actual table and column definitions.</p>
+    <ul>
+        <li>customers table (customer_id, customer_name, country)</li>
+        <li>machines table (machine_nr, customer_id, machine_type, model)</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h2>Quick Links</h2>
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <a href="/ui/visualization" class="btn">View Relationship Model</a>
+        <a href="/ui/assets" class="btn">Browse Assets</a>
+        <a href="/ui/relationships" class="btn">View Relationships</a>
+        <a href="/api" class="btn btn-secondary">API Documentation</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2>API Endpoints</h2>
+    <p>Access the REST API at the following endpoints:</p>
+    <ul style="margin-top: 1rem; line-height: 2;">
+        <li><code>GET /api/v2/assets</code> - List all assets</li>
+        <li><code>GET /api/v2/assets/{assetId}</code> - Get specific asset</li>
+        <li><code>GET /api/v2/domains</code> - List all domains</li>
+        <li><code>GET /api/v2/relations</code> - List all relationships</li>
+        <li><code>GET /health</code> - Health check</li>
+    </ul>
+</div>
+{% endblock %}

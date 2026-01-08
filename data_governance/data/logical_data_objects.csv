@@ -1,0 +1,35 @@
+asset_id,asset_name,display_name,asset_type,domain_id,description,maps_to_business,maps_to_technical,data_type,is_nullable,is_primary_key
+LDO-CUST-001,Customer Entity,Customer,Logical Data Object,DOM-LOGICAL-001,Logical representation of customer data,BDO-CUST-001,TDO-CUST-001,Entity,false,false
+LDO-CUST-002,customer_id,Customer ID,Logical Attribute,DOM-LOGICAL-001,Unique customer identifier,BDO-CUST-002,TDO-CUST-002,String,false,true
+LDO-CUST-003,customer_name,Customer Name,Logical Attribute,DOM-LOGICAL-001,Name of the customer,BDO-CUST-003,TDO-CUST-003,String,false,false
+LDO-CUST-004,country,Country,Logical Attribute,DOM-LOGICAL-001,Customer's country location,BDO-CUST-004,TDO-CUST-004,String,false,false
+LDO-MACH-001,Machine Entity,Machine,Logical Data Object,DOM-LOGICAL-002,Logical representation of machine data,BDO-MACH-001,TDO-MACH-001,Entity,false,false
+LDO-MACH-002,machine_nr,Machine Number,Logical Attribute,DOM-LOGICAL-002,Unique machine number,BDO-MACH-002,TDO-MACH-002,String,false,true
+LDO-MACH-003,customer_id,Customer ID,Logical Attribute,DOM-LOGICAL-002,Reference to owning customer,BDO-MACH-003,TDO-MACH-003,String,false,false
+LDO-MACH-004,machine_type,Machine Type,Logical Attribute,DOM-LOGICAL-002,Type classification of machine,BDO-MACH-004,TDO-MACH-004,String,false,false
+LDO-MACH-005,model,Model,Logical Attribute,DOM-LOGICAL-002,Model designation,BDO-MACH-005,TDO-MACH-005,String,false,false
+LDO-LOC-001,Location Entity,Location,Logical Data Object,DOM-LOGICAL-003,Logical representation of location data,BDO-LOC-001,TDO-LEONIE-001,Entity,false,false
+LDO-LOC-002,location_id,Location ID,Logical Attribute,DOM-LOGICAL-003,Unique location identifier,BDO-LOC-002,,String,false,true
+LDO-LOC-003,customer_id,Customer ID,Logical Attribute,DOM-LOGICAL-003,Customer reference,BDO-LOC-003,,String,false,false
+LDO-LOC-004,site_name,Site Name,Logical Attribute,DOM-LOGICAL-003,Name of the site,BDO-LOC-004,,String,false,false
+LDO-LOC-005,city,City,Logical Attribute,DOM-LOGICAL-003,City location,BDO-LOC-005,,String,false,false
+LDO-LOC-006,country,Country,Logical Attribute,DOM-LOGICAL-003,Country location,BDO-LOC-006,,String,false,false
+LDO-LOC-007,latitude,Latitude,Logical Attribute,DOM-LOGICAL-003,Geographic latitude,BDO-LOC-007,,Decimal,false,false
+LDO-LOC-008,longitude,Longitude,Logical Attribute,DOM-LOGICAL-003,Geographic longitude,BDO-LOC-008,,Decimal,false,false
+LDO-IB-001,Install Base Entity,Install Base,Logical Data Object,DOM-LOGICAL-004,Logical representation of install base data,BDO-IB-001,TDO-BART-001,Entity,false,false
+LDO-IB-002,machine_nr,Machine Number,Logical Attribute,DOM-LOGICAL-004,Installed machine reference,BDO-IB-002,,String,false,true
+LDO-IB-003,location_id,Location ID,Logical Attribute,DOM-LOGICAL-004,Installation location reference,BDO-IB-003,,String,false,false
+LDO-IB-004,installation_date,Installation Date,Logical Attribute,DOM-LOGICAL-004,Date of installation,BDO-IB-004,,Date,false,false
+LDO-STATE-001,State Entity,State,Logical Data Object,DOM-LOGICAL-005,Logical representation of machine state data,BDO-STATE-001,TDO-ZACHARIAS-001,Entity,false,false
+LDO-STATE-002,state_id,State ID,Logical Attribute,DOM-LOGICAL-005,Unique state identifier,BDO-STATE-002,,String,false,true
+LDO-STATE-003,machine_nr,Machine Number,Logical Attribute,DOM-LOGICAL-005,Machine reference,BDO-STATE-003,,String,false,false
+LDO-STATE-004,state_code,State Code,Logical Attribute,DOM-LOGICAL-005,State classification code,BDO-STATE-004,,String,false,false
+LDO-STATE-005,state_desc,State Description,Logical Attribute,DOM-LOGICAL-005,State description,BDO-STATE-005,,String,false,false
+LDO-STATE-006,start_time,Start Time,Logical Attribute,DOM-LOGICAL-005,State start timestamp,BDO-STATE-006,,DateTime,false,false
+LDO-STATE-007,end_time,End Time,Logical Attribute,DOM-LOGICAL-005,State end timestamp,BDO-STATE-007,,DateTime,false,false
+LDO-EVENT-001,Event Log Entity,Event Log,Logical Data Object,DOM-LOGICAL-006,Logical representation of event log data,BDO-EVENT-001,TDO-ERNESTO-001,Entity,false,false
+LDO-EVENT-002,event_id,Event ID,Logical Attribute,DOM-LOGICAL-006,Unique event identifier,BDO-EVENT-002,,String,false,true
+LDO-EVENT-003,machine_nr,Machine Number,Logical Attribute,DOM-LOGICAL-006,Machine reference,BDO-EVENT-003,,String,false,false
+LDO-EVENT-004,event_time,Event Time,Logical Attribute,DOM-LOGICAL-006,Event timestamp,BDO-EVENT-004,,DateTime,false,false
+LDO-EVENT-005,event_type,Event Type,Logical Attribute,DOM-LOGICAL-006,Event classification,BDO-EVENT-005,,String,false,false
+LDO-EVENT-006,metric_value,Metric Value,Logical Attribute,DOM-LOGICAL-006,Event metric measurement,BDO-EVENT-006,,Decimal,true,false

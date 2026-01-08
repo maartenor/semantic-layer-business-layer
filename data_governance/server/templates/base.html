@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mock Data Governance Application{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .navbar nav {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .navbar a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .navbar a:hover {
+            background: #34495e;
+        }
+
+        .navbar a.active {
+            background: #3498db;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .card h3 {
+            color: #34495e;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.3rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-business {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-logical {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-technical {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .badge-domain {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .number {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="navbar">
+        <h1>Mock Data Governance Application (think: Collibra e.g.)</h1>
+        <nav>
+            <a href="/" {% if request.path == '/' %}class="active"{% endif %}>Home</a>
+            <a href="/ui/visualization" {% if request.path == '/ui/visualization' %}class="active"{% endif %}>Relationship Model</a>
+            <a href="/ui/assets" {% if request.path == '/ui/assets' %}class="active"{% endif %}>Assets</a>
+            <a href="/ui/relationships" {% if request.path == '/ui/relationships' %}class="active"{% endif %}>Relationships</a>
+            <button onclick="reloadData()" class="btn btn-secondary" style="margin-left: auto; padding: 0.5rem 1rem;">🔄 Reload Data</button>
+        </nav>
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        function reloadData() {
+            if (!confirm('Reload data from CSV files? This will refresh the current page.')) {
+                return;
+            }
+
+            fetch('/reload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(`Data reloaded successfully!\nAssets: ${data.assets_count}\nDomains: ${data.domains_count}\nRelationships: ${data.relationships_count}`);
+                    location.reload();
+                } else {
+                    alert('Error reloading data: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error reloading data: ' + error);
+            });
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

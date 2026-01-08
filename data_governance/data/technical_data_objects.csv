@@ -1,0 +1,15 @@
+asset_id,asset_name,display_name,asset_type,domain_id,description,database_name,schema_name,table_name,column_name,data_type,max_length,is_nullable,is_primary_key,source_system
+TDO-CUST-001,kristopher,kristopher,Technical Table,DOM-TECHNICAL-001,c,postgres.postgresql.svc.cluster.local,unclear_demo,kristopher,,Table,,FALSE,FALSE,ERP System
+TDO-CUST-002,kristopher_id,kristopher_id,Technical Column,DOM-TECHNICAL-001,c,postgres.postgresql.svc.cluster.local,unclear_demo,kristopher,id,VARCHAR,10,FALSE,TRUE,ERP System
+TDO-CUST-003,kristopher_descr,kristopher_descr,Technical Column,DOM-TECHNICAL-001,c,postgres.postgresql.svc.cluster.local,unclear_demo,kristopher,descr,VARCHAR,255,FALSE,FALSE,ERP System
+TDO-CUST-004,kristopher_cont,kristopher_cont,Technical Column,DOM-TECHNICAL-001,c,postgres.postgresql.svc.cluster.local,unclear_demo,kristopher,cont,VARCHAR,100,FALSE,FALSE,ERP System
+TDO-MACH-001,madelief,madelief,Technical Table,DOM-TECHNICAL-002,c,postgres.postgresql.svc.cluster.local,unclear_demo,madelief,,Table,,FALSE,FALSE,MES System
+TDO-MACH-002,madelief_out,madelief_out,Technical Column,DOM-TECHNICAL-002,c,postgres.postgresql.svc.cluster.local,unclear_demo,madelief,out,VARCHAR,10,FALSE,TRUE,MES System
+TDO-MACH-003,madelief_kladblok,madelief_kladblok,Technical Column,DOM-TECHNICAL-002,c,postgres.postgresql.svc.cluster.local,unclear_demo,madelief,kladblok,VARCHAR,10,FALSE,FALSE,MES System
+TDO-MACH-004,madelief_sneeuw,madelief_sneeuw,Technical Column,DOM-TECHNICAL-002,c,postgres.postgresql.svc.cluster.local,unclear_demo,madelief,sneeuw,VARCHAR,10,FALSE,FALSE,MES System
+TDO-MACH-005,madelief_kind,madelief_kind,Technical Column,DOM-TECHNICAL-002,c,postgres.postgresql.svc.cluster.local,unclear_demo,madelief,kind,VARCHAR,50,FALSE,FALSE,MES System
+TDO-LEONIE-001,leonie,leonie,Technical Table,DOM-TECHNICAL-003,c,postgres.postgresql.svc.cluster.local,unclear_demo,leonie,,Table,,FALSE,FALSE,ERP System
+TDO-BART-001,bart,bart,Technical Table,DOM-TECHNICAL-004,c,postgres.postgresql.svc.cluster.local,unclear_demo,bart,,Table,,FALSE,FALSE,MES System
+TDO-ZACHARIAS-001,zacharias,zacharias,Technical Table,DOM-TECHNICAL-005,c,postgres.postgresql.svc.cluster.local,unclear_demo,zacharias,,Table,,FALSE,FALSE,MES System
+TDO-ERNESTO-001,ernesto,ernesto,Technical Table,DOM-TECHNICAL-006,c,postgres.postgresql.svc.cluster.local,unclear_demo,ernesto,,Table,,FALSE,FALSE,MES System
+TDO-NAKOMER-001,nakomer,nakomer,Technical Table,DOM-TECHNICAL-005,c,postgres.postgresql.svc.cluster.local,unclear_demo,nakomer,,Table,,FALSE,FALSE,MES System

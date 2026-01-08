@@ -1,0 +1,17 @@
+domain_id,domain_name,domain_type,description,parent_domain
+DOM-BUSINESS-001,Customer Management,Business Domain,Business domain for customer-related data objects,
+DOM-BUSINESS-002,Equipment Management,Business Domain,Business domain for machine and equipment data objects,
+DOM-BUSINESS-003,Location Management,Business Domain,Business domain for location and site data objects,
+DOM-BUSINESS-004,Operations Management,Business Domain,Business domain for operational and event data objects,
+DOM-LOGICAL-001,Customer Logical Model,Logical Domain,Logical domain for customer data model,DOM-BUSINESS-001
+DOM-LOGICAL-002,Equipment Logical Model,Logical Domain,Logical domain for equipment data model,DOM-BUSINESS-002
+DOM-LOGICAL-003,Location Logical Model,Logical Domain,Logical domain for location data model,DOM-BUSINESS-003
+DOM-LOGICAL-004,Install Base Logical Model,Logical Domain,Logical domain for install base data model,DOM-BUSINESS-002
+DOM-LOGICAL-005,State Logical Model,Logical Domain,Logical domain for machine state data model,DOM-BUSINESS-004
+DOM-LOGICAL-006,Event Log Logical Model,Logical Domain,Logical domain for event log data model,DOM-BUSINESS-004
+DOM-TECHNICAL-001,Customer Technical Schema,Technical Domain,Technical domain for customer database schema,DOM-LOGICAL-001
+DOM-TECHNICAL-002,Equipment Technical Schema,Technical Domain,Technical domain for equipment database schema,DOM-LOGICAL-002
+DOM-TECHNICAL-003,Location Technical Schema,Technical Domain,Technical domain for location database schema,DOM-LOGICAL-003
+DOM-TECHNICAL-004,Install Base Technical Schema,Technical Domain,Technical domain for install base database schema,DOM-LOGICAL-004
+DOM-TECHNICAL-005,State Technical Schema,Technical Domain,Technical domain for machine state database schema,DOM-LOGICAL-005
+DOM-TECHNICAL-006,Event Log Technical Schema,Technical Domain,Technical domain for event log database schema,DOM-LOGICAL-006

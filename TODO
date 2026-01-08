@@ -1,0 +1,17 @@
+Relationships should point from business, via logical to technical data object (not bottom to top). Adjust that in the ./data folder and rename the relationship type from 'implements' to 'stored in', so logical data object 'customer' (LDO-CUST-001) > has relationship 'stored in' (REL-002) > technical data object 'customer' (TDO-CUST-001)
+
+Change hard coded object/CSV input files handling in the reading,html creation, rendering etc to be dynamically created based on what CSV files are in ./input_data_goverance folder.
+
+Create an option to manual reload the data in the server when ./input_data_goverance CSV files have change. This will fail if files don't have consistend CSV structure as expected for that file type (e.g. customers.csv differs wrt columns from machines.csv). If structure incorrect, show expected input file content structure as example in error message with brief example.
+
+make usable as args for app.py: 
+port, path to ./data_governance/data folder used, path to ./input_data_governance
+
+
+Can the visualization physics, order the Data Objects over teh visualization screen; so that objects are ordered from business (top) to logical (lower) and technical (bottom) in the visuals?
+
+?? for business attributes split data objects to assets;
+and data object attributes to 'attributes' instead of it being different type/asset_type of assets.
+
+
+The 'Show Attributes' on Visualization page does not respond when toggled from False to True . Default it is True. Then toggle to False to make attributes hidden works OK. But when attempting to show them again, toggel to True has no effect on visual graph itsel (button does show True checkmark)
